@@ -1,0 +1,1083 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SE Primer: Yazılım Mühendisliği, Oynanan Bir Kitap</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600&family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0b0f19;
+            --card-bg: #111827;
+            --card-border: #1f2937;
+            --accent: #38bdf8;
+            --accent-glow: rgba(56, 189, 248, 0.25);
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --text-main: #f3f4f6;
+            --text-muted: #9ca3af;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--bg);
+            color: var(--text-main);
+            line-height: 1.6;
+            padding: 24px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            padding: 40px 20px 30px;
+            border-bottom: 1px solid var(--card-border);
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .badge {
+            display: inline-block;
+            background: rgba(56, 189, 248, 0.12);
+            color: var(--accent);
+            padding: 6px 16px;
+            border-radius: 999px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            border: 1px solid rgba(56, 189, 248, 0.3);
+            margin-bottom: 14px;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            background: linear-gradient(135deg, #ffffff 30%, #38bdf8 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            font-size: 1.15rem;
+            color: var(--accent);
+            font-style: italic;
+            font-weight: 500;
+        }
+
+        .meta {
+            margin-top: 15px;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        @media (max-width: 900px) {
+            .grid-2 {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+            position: relative;
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 18px;
+            border-bottom: 1px solid var(--card-border);
+            padding-bottom: 12px;
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Story Controls */
+        .step-badge {
+            background: #2563eb;
+            color: #fff;
+            padding: 3px 10px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 700;
+        }
+
+        .story-text {
+            font-size: 1.02rem;
+            margin-bottom: 20px;
+            color: #d1d5db;
+        }
+
+        .decision-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .choice-btn {
+            background: #1f2937;
+            border: 1px solid #374151;
+            color: #f9fafb;
+            padding: 14px 18px;
+            border-radius: 10px;
+            text-align: left;
+            cursor: pointer;
+            font-size: 0.95rem;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .choice-btn:hover {
+            background: #2d3748;
+            border-color: var(--accent);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px var(--accent-glow);
+        }
+
+        .choice-btn span.badge-opt {
+            background: rgba(255, 255, 255, 0.08);
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.8rem;
+        }
+
+        /* FSM Visualization */
+        .fsm-svg {
+            width: 100%;
+            height: 380px;
+            background: #0d1322;
+            border-radius: 10px;
+            border: 1px solid #1f2937;
+        }
+
+        .node {
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .node circle {
+            fill: #1e293b;
+            stroke: #475569;
+            stroke-width: 2.5;
+            transition: all 0.3s;
+        }
+
+        .node.active circle {
+            fill: #0369a1;
+            stroke: var(--accent);
+            stroke-width: 4;
+            filter: drop-shadow(0 0 10px var(--accent));
+        }
+
+        .node.success circle {
+            fill: #065f46;
+            stroke: var(--success);
+            filter: drop-shadow(0 0 10px var(--success));
+        }
+
+        .node.failed circle {
+            fill: #7f1d1d;
+            stroke: var(--danger);
+            filter: drop-shadow(0 0 10px var(--danger));
+        }
+
+        .node text {
+            fill: #e2e8f0;
+            font-size: 11px;
+            font-family: 'Inter', sans-serif;
+            text-anchor: middle;
+            font-weight: 600;
+            pointer-events: none;
+        }
+
+        /* Interactive Simulator (Confusion Matrix) */
+        .matrix-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .matrix-cell {
+            background: #1e293b;
+            padding: 14px;
+            border-radius: 8px;
+            border: 1px solid #334155;
+            text-align: center;
+        }
+
+        .matrix-cell label {
+            display: block;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+        }
+
+        .matrix-cell input {
+            width: 90px;
+            background: #0f172a;
+            border: 1px solid #475569;
+            color: #fff;
+            padding: 6px;
+            border-radius: 6px;
+            text-align: center;
+            font-size: 1.1rem;
+            font-weight: 700;
+            font-family: 'Fira Code', monospace;
+        }
+
+        .metrics-results {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .metric-box {
+            background: #0f172a;
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+            border: 1px solid #1e293b;
+        }
+
+        .metric-box .val {
+            font-size: 1.25rem;
+            font-weight: 800;
+            font-family: 'Fira Code', monospace;
+            color: var(--accent);
+        }
+
+        .metric-box .lbl {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        /* BERT Classifier Interactive Demo */
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        .input-group textarea {
+            width: 100%;
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            color: #fff;
+            padding: 12px;
+            font-size: 0.95rem;
+            font-family: 'Inter', sans-serif;
+            resize: vertical;
+            min-height: 70px;
+        }
+
+        .btn-predict {
+            background: var(--accent);
+            color: #0b0f19;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 700;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.2s;
+        }
+
+        .btn-predict:hover {
+            opacity: 0.9;
+            transform: scale(1.01);
+        }
+
+        .prob-bar {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 8px;
+            font-size: 0.85rem;
+        }
+
+        .bar-wrap {
+            flex: 1;
+            height: 10px;
+            background: #1e293b;
+            border-radius: 999px;
+            overflow: hidden;
+        }
+
+        .bar-fill {
+            height: 100%;
+            background: var(--accent);
+            transition: width 0.4s ease;
+        }
+
+        /* Acceptance Criteria Checklist */
+        .ac-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .ac-item {
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 10px;
+            padding: 14px;
+            transition: all 0.3s;
+        }
+
+        .ac-item.passed {
+            border-color: var(--success);
+            background: rgba(16, 185, 129, 0.08);
+        }
+
+        .ac-item.failed {
+            border-color: var(--danger);
+            background: rgba(239, 68, 68, 0.08);
+        }
+
+        .ac-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+
+        .ac-status {
+            font-size: 0.8rem;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-weight: 700;
+        }
+
+        .status-passed { background: var(--success); color: #fff; }
+        .status-failed { background: var(--danger); color: #fff; }
+        .status-pending { background: #64748b; color: #fff; }
+
+        .gherkin-spec {
+            font-family: 'Fira Code', monospace;
+            font-size: 0.8rem;
+            color: #94a3b8;
+            margin-top: 6px;
+            line-height: 1.4;
+        }
+
+        .gherkin-spec span.kw { color: #f43f5e; font-weight: 600; }
+
+        /* Terminal Output Log */
+        .terminal-log {
+            background: #020617;
+            border: 1px solid #1e293b;
+            border-radius: 8px;
+            padding: 14px;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.82rem;
+            color: #38bdf8;
+            height: 180px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+        }
+
+        .img-carousel {
+            display: flex;
+            gap: 16px;
+            overflow-x: auto;
+            padding-bottom: 12px;
+        }
+
+        .img-card {
+            flex: 0 0 320px;
+            background: #0f172a;
+            border-radius: 10px;
+            border: 1px solid #1e293b;
+            padding: 10px;
+            text-align: center;
+        }
+
+        .img-card img {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+            border-radius: 6px;
+            margin-bottom: 8px;
+        }
+
+        .img-card p {
+            font-size: 0.85rem;
+            color: #cbd5e1;
+            font-weight: 600;
+        }
+
+        .btn-reset {
+            background: #374151;
+            color: #f3f4f6;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+        }
+        .btn-reset:hover { background: #4b5563; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <div class="badge">YZM301 Yazılım Testi &bull; Ödev 6 & 7 AI Tutor</div>
+        <h1>SE Primer: Yazılım Mühendisliği, Oynanan Bir Kitap</h1>
+        <div class="subtitle">"Her seçim bir durum geçişi. Her son bir kabul kriteri."</div>
+        <div class="meta">
+            Samsun Üniversitesi Yazılım Mühendisliği &bull; 
+            Öğretim Üyesi: <strong>Prof. Dr. Nurettin Şenyer</strong> &bull; 
+            Öğrenci: <strong>Ece Yoloğlu (241478071)</strong>
+        </div>
+    </header>
+
+    <!-- Visual Slides Preview -->
+    <div class="card" style="margin-bottom: 24px;">
+        <div class="card-header">
+            <div class="card-title">📖 Sunum Kaynakları &bull; SE Primer — Ödev.pptx</div>
+            <span style="font-size: 0.85rem; color: var(--text-muted);">Slayt Referansları</span>
+        </div>
+        <div class="img-carousel">
+            <div class="img-card">
+                <img src="images/slide_1093.png" alt="Slayt 1">
+                <p>Slayt 1: Kapak & Vaka Mimarisi</p>
+            </div>
+            <div class="img-card">
+                <img src="images/slide_1094.jpg" alt="Slayt 2">
+                <p>Slayt 2: The Diamond Age (Neal Stephenson)</p>
+            </div>
+            <div class="img-card">
+                <img src="images/slide_1096.png" alt="Slayt 3">
+                <p>Slayt 3: BERT NLP Triyaj Mimarisi</p>
+            </div>
+            <div class="img-card">
+                <img src="images/slide_1097.png" alt="Slayt 4">
+                <p>Slayt 4: YOLO Nesne Tespiti</p>
+            </div>
+            <div class="img-card">
+                <img src="images/slide_1098.png" alt="Slayt 5">
+                <p>Slayt 5: Makine Öğrenmesi Yaşam Döngüsü</p>
+            </div>
+            <div class="img-card">
+                <img src="images/f_00109a.png" alt="Slayt 6">
+                <p>Slayt 6: Hata Matrisi (Confusion Matrix)</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN INTERACTIVE SECTION -->
+    <div class="grid-2">
+        <!-- Story Engine -->
+        <div class="card">
+            <div class="card-header">
+                <div class="card-title">
+                    🎮 Oynanabilir Hikâye Motoru (FSM Engine)
+                </div>
+                <button class="btn-reset" onclick="resetStory()">Yeniden Başlat ↺</button>
+            </div>
+
+            <div id="story-container">
+                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
+                    <span class="step-badge" id="step-badge">ADIM 1 / 4</span>
+                    <span style="font-weight: 700; color: var(--accent);" id="step-clock">⏰ Saat 07:30</span>
+                </div>
+                <div class="story-text" id="story-prompt">
+                    Şehir Hastanesi yeni dijital Randevu ve Hasta Kayıt Sistemi sabah <strong>08:00</strong>'de canlıya açılacak. 
+                    Aynı anda 50.000 vatandaş hekim randevusu almak için sisteme akın edecek.
+                    Sistemin mimarisini ve eşzamanlılık yönetimini nasıl kurgulayacaksın?
+                </div>
+
+                <div class="decision-buttons" id="decision-buttons">
+                    <button class="choice-btn" onclick="makeChoice(1)">
+                        <span>1) Redis Dağıtık Kilit (Redlock) + DB Connection Pool kur</span>
+                        <span class="badge-opt">Önerilen Mimari</span>
+                    </button>
+                    <button class="choice-btn" onclick="makeChoice(2)">
+                        <span>2) Doğrudan veritabanına SQL SELECT ve UPDATE sorgusu at</span>
+                        <span class="badge-opt">Naive / Hızlı</span>
+                    </button>
+                </div>
+            </div>
+
+            <div style="margin-top: 20px;">
+                <div style="font-size: 0.85rem; font-weight: 700; margin-bottom: 6px; color: var(--text-muted);">SİSTEM TERMİNALİ VE LOGLAR</div>
+                <div class="terminal-log" id="terminal-log">[07:30:00] SE Primer Motoru başlatıldı. Durum: S0_INITIAL
+[07:30:00] Hedef: 08:00 Canlı Lansmanı. 50.000 Eşzamanlı İstek Bekleniyor...</div>
+            </div>
+        </div>
+
+        <!-- FSM State Graph -->
+        <div class="card">
+            <div class="card-header">
+                <div class="card-title">🔄 Canlı Durum Geçişleri (FSM Graph)</div>
+                <span id="current-state-label" style="font-family: 'Fira Code', monospace; color: var(--accent); font-weight: 700;">S0_INITIAL</span>
+            </div>
+
+            <svg class="fsm-svg" viewBox="0 0 540 380" id="fsm-svg">
+                <!-- Links -->
+                <line x1="270" y1="50" x2="160" y2="120" stroke="#334155" stroke-width="2" />
+                <line x1="270" y1="50" x2="380" y2="120" stroke="#334155" stroke-width="2" />
+
+                <line x1="160" y1="120" x2="160" y2="200" stroke="#334155" stroke-width="2" />
+                <line x1="380" y1="120" x2="380" y2="200" stroke="#334155" stroke-width="2" />
+
+                <line x1="160" y1="200" x2="270" y2="280" stroke="#334155" stroke-width="2" />
+                <line x1="380" y1="200" x2="380" y2="280" stroke="#334155" stroke-width="2" />
+
+                <line x1="270" y1="280" x2="140" y2="340" stroke="#334155" stroke-width="2" />
+                <line x1="270" y1="280" x2="400" y2="340" stroke="#334155" stroke-width="2" />
+
+                <!-- Nodes -->
+                <!-- S0: Initial -->
+                <g class="node active" id="node-S0" transform="translate(270, 50)">
+                    <circle r="24" />
+                    <text y="4">S0: Giriş</text>
+                </g>
+
+                <!-- S1: Arch -->
+                <g class="node" id="node-S1A" transform="translate(160, 120)">
+                    <circle r="22" />
+                    <text y="4">S1A: Kilit</text>
+                </g>
+                <g class="node" id="node-S1B" transform="translate(380, 120)">
+                    <circle r="22" />
+                    <text y="4">S1B: SQL</text>
+                </g>
+
+                <!-- S2: Test -->
+                <g class="node" id="node-S2A" transform="translate(160, 200)">
+                    <circle r="22" />
+                    <text y="4">S2A: Yük</text>
+                </g>
+                <g class="node" id="node-S2B" transform="translate(380, 200)">
+                    <circle r="22" />
+                    <text y="4">S2B: Happy</text>
+                </g>
+
+                <!-- S3: Shield & AI -->
+                <g class="node" id="node-S3" transform="translate(270, 280)">
+                    <circle r="22" />
+                    <text y="4">S3: AI+Kalkan</text>
+                </g>
+
+                <!-- Terminal Nodes -->
+                <g class="node" id="node-S5" transform="translate(140, 340)">
+                    <circle r="26" />
+                    <text y="4">S5: BAŞARI</text>
+                </g>
+
+                <g class="node" id="node-S6" transform="translate(400, 340)">
+                    <circle r="26" />
+                    <text y="4">S6: ÇÖKTÜ</text>
+                </g>
+            </svg>
+            <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 8px; text-align: center;">
+                Her seçim yeşil (başarı) veya kırmızı (hata) durum düğümüne doğru FSM geçişini tetikler.
+            </div>
+        </div>
+    </div>
+
+    <!-- ACCEPTANCE CRITERIA CHECKLIST -->
+    <div class="card" style="margin-bottom: 24px;">
+        <div class="card-header">
+            <div class="card-title">📋 Kabul Kriterleri (Acceptance Criteria Suite &bull; Given-When-Then)</div>
+            <span style="font-size: 0.85rem; color: var(--text-muted);">BDD / Doğrulama Kriterleri</span>
+        </div>
+        <div class="ac-list" id="ac-list">
+            <div class="ac-item" id="card-AC-01">
+                <div class="ac-item-header">
+                    <span>AC-01: Eşzamanlı Randevu Bütünlüğü (Double Booking Engelleme)</span>
+                    <span class="ac-status status-pending" id="status-AC-01">BEKLİYOR</span>
+                </div>
+                <div class="gherkin-spec">
+                    <span class="kw">Given</span> Aynı hekim randevu slotuna aynı milisaniyede 10 istek ulaştığında<br>
+                    <span class="kw">When</span> Dağıtık kilit mekanizması devreye girdiğinde<br>
+                    <span class="kw">Then</span> Yalnızca 1 işlem başarılı olmalı, 9 istek 409 Conflict almalı, çift rezervasyon olmamalıdır.
+                </div>
+            </div>
+
+            <div class="ac-item" id="card-AC-02">
+                <div class="ac-item-header">
+                    <span>AC-02: 08:00 Pik Yük ve Gecikme Sınırı (P99 Latency &lt; 250ms)</span>
+                    <span class="ac-status status-pending" id="status-AC-02">BEKLİYOR</span>
+                </div>
+                <div class="gherkin-spec">
+                    <span class="kw">Given</span> 08:00:00'da sisteme 50.000 eşzamanlı aktif kullanıcı bağlandığında<br>
+                    <span class="kw">When</span> API uç noktaları sorgulandığında<br>
+                    <span class="kw">Then</span> P99 yanıt süresi 250ms altında kalmalı, 504 Gateway Timeout oranı %0 olmalıdır.
+                </div>
+            </div>
+
+            <div class="ac-item" id="card-AC-03">
+                <div class="ac-item-header">
+                    <span>AC-03: Güvenlik Kalkanı ve Bot Koruması</span>
+                    <span class="ac-status status-pending" id="status-AC-03">BEKLİYOR</span>
+                </div>
+                <div class="gherkin-spec">
+                    <span class="kw">Given</span> Karaborsacı botlar saniyede binlerce otomatik rezervasyon denemesi yaptığında<br>
+                    <span class="kw">When</span> Token Bucket Rate Limiter ve Sanitizer katmanı çalıştığında<br>
+                    <span class="kw">Then</span> İstekler 429 Too Many Requests ile bloklanmalı, gerçek vatandaşın erişimi engellenmemelidir.
+                </div>
+            </div>
+
+            <div class="ac-item" id="card-AC-04">
+                <div class="ac-item-header">
+                    <span>AC-04: AI Poliklinik Triyaj Başarısı (Recall &ge; %99, F1 &ge; 0.90)</span>
+                    <span class="ac-status status-pending" id="status-AC-04">BEKLİYOR</span>
+                </div>
+                <div class="gherkin-spec">
+                    <span class="kw">Given</span> Hasta serbest metin olarak şikayetini girdiğinde<br>
+                    <span class="kw">When</span> BERT sınıflandırma modeli poliklinik tahmini ürettiğinde<br>
+                    <span class="kw">Then</span> Model F1-Skoru &ge; 0.90 olmalı ve acil vaka Yanlış Negatif (FN) sayısı &le; 5 kalmalıdır.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- INTERACTIVE LABS: BERT NLP & CONFUSION MATRIX -->
+    <div class="grid-2">
+        <!-- BERT Triager Lab -->
+        <div class="card">
+            <div class="card-header">
+                <div class="card-title">🤖 Slayt 3: BERT Semptom Triyaj Simülatörü</div>
+                <span class="badge" style="margin: 0;">NLP Sınıflandırıcı</span>
+            </div>
+            <div class="input-group">
+                <label style="font-size: 0.85rem; color: var(--text-muted); display: block; margin-bottom: 6px;">
+                    Hasta Şikayet Metnini Giriniz:
+                </label>
+                <textarea id="symptom-input">Sol kolum uyuşuyor, göğsümde şiddetli baskı ve nefes darlığı hissediyorum.</textarea>
+            </div>
+            <button class="btn-predict" onclick="runBERTPrediction()">Modeli Çalıştır (BERT Inference) ⚡</button>
+
+            <div style="margin-top: 18px;" id="bert-results">
+                <div class="prob-bar">
+                    <span style="width: 110px;">Kardiyoloji:</span>
+                    <div class="bar-wrap"><div class="bar-fill" id="bar-cardio" style="width: 95%;"></div></div>
+                    <span id="txt-cardio" style="font-weight: 700;">%95.0</span>
+                </div>
+                <div class="prob-bar">
+                    <span style="width: 110px;">Nöroloji:</span>
+                    <div class="bar-wrap"><div class="bar-fill" id="bar-neuro" style="width: 3%;"></div></div>
+                    <span id="txt-neuro">%3.0</span>
+                </div>
+                <div class="prob-bar">
+                    <span style="width: 110px;">Dahiliye:</span>
+                    <div class="bar-wrap"><div class="bar-fill" id="bar-internal" style="width: 1%;"></div></div>
+                    <span id="txt-internal">%1.0</span>
+                </div>
+                <div class="prob-bar">
+                    <span style="width: 110px;">Ortopedi:</span>
+                    <div class="bar-wrap"><div class="bar-fill" id="bar-ortho" style="width: 1%;"></div></div>
+                    <span id="txt-ortho">%1.0</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Confusion Matrix Calculator -->
+        <div class="card">
+            <div class="card-header">
+                <div class="card-title">📊 Slayt 6: Canlı Hata Matrisi (Confusion Matrix)</div>
+                <span class="badge" style="margin: 0;">Model Test Metrikleri</span>
+            </div>
+            <div class="matrix-grid">
+                <div class="matrix-cell">
+                    <label>True Positive (TP)</label>
+                    <input type="number" id="inp-tp" value="930" oninput="calcMatrix()">
+                </div>
+                <div class="matrix-cell">
+                    <label>False Positive (FP)</label>
+                    <input type="number" id="inp-fp" value="35" oninput="calcMatrix()">
+                </div>
+                <div class="matrix-cell">
+                    <label>False Negative (FN)</label>
+                    <input type="number" id="inp-fn" value="5" oninput="calcMatrix()">
+                </div>
+                <div class="matrix-cell">
+                    <label>True Negative (TN)</label>
+                    <input type="number" id="inp-tn" value="1030" oninput="calcMatrix()">
+                </div>
+            </div>
+
+            <div class="metrics-results">
+                <div class="metric-box">
+                    <div class="val" id="res-acc">%98.00</div>
+                    <div class="lbl">Accuracy</div>
+                </div>
+                <div class="metric-box">
+                    <div class="val" id="res-prec">%96.37</div>
+                    <div class="lbl">Precision</div>
+                </div>
+                <div class="metric-box">
+                    <div class="val" id="res-rec" style="color: var(--success);">%99.47</div>
+                    <div class="lbl">Recall</div>
+                </div>
+                <div class="metric-box">
+                    <div class="val" id="res-f1">%97.89</div>
+                    <div class="lbl">F1-Score</div>
+                </div>
+            </div>
+
+            <div style="font-size: 0.8rem; color: #94a3b8; margin-top: 14px; border-top: 1px solid #1e293b; padding-top: 10px;">
+                ⚠️ <strong>Yazılım Testi Prensibi:</strong> Tıbbi teşhis/yönlendirmede <code>False Negative (FN)</code> hayati risk taşır. Model testinde Recall değerinin %99 üstünde olması kritik kabul kriteridir.
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // FSM Game State
+    let step = 1;
+    let selectedChoices = [];
+    let logLines = [
+        "[07:30:00] SE Primer Motoru başlatıldı. Durum: S0_INITIAL",
+        "[07:30:00] Hedef: 08:00 Canlı Lansmanı. 50.000 Eşzamanlı İstek Bekleniyor..."
+    ];
+
+    const steps = [
+        {
+            clock: "⏰ Saat 07:30",
+            badge: "ADIM 1 / 4: MİMARİ & EŞZAMANLILIK",
+            prompt: "Şehir Hastanesi yeni dijital Randevu ve Hasta Kayıt Sistemi sabah 08:00'de canlıya açılacak. Aynı anda 50.000 vatandaş hekim randevusu almak için sisteme akın edecek. Sistemin mimarisini ve eşzamanlılık yönetimini nasıl kurgulayacaksın?",
+            choices: [
+                { text: "1) Redis Dağıtık Kilit (Redlock) + DB Connection Pool kur", opt: "Önerilen Mimari", correct: true },
+                { text: "2) Doğrudan veritabanına SQL SELECT ve UPDATE sorgusu at", opt: "Naive / Hızlı", correct: false }
+            ]
+        },
+        {
+            clock: "⏰ Saat 07:40",
+            badge: "ADIM 2 / 4: DOĞRULAMA VE TEST STRATEJİSİ",
+            prompt: "Lansmandan 20 dakika önce son test aşamasına geldin. Test tüpü ikonunu hatırlayarak hangi doğrulama metodolojisini uygulayacaksın?",
+            choices: [
+                { text: "1) JMeter ile 50.000 eşzamanlı sanal kullanıcı yük ve sınır değer testleri yap", opt: "Kapsamlı Test", correct: true },
+                { text: "2) Geliştirici ortamında 1 kullanıcıyla 'Happy Path' birim testi yapıp canlıya çık", opt: "Yetersiz Test", correct: false }
+            ]
+        },
+        {
+            clock: "⏰ Saat 07:50",
+            badge: "ADIM 3 / 4: GÜVENLİK KALKANI (SHIELD)",
+            prompt: "Randevu botları ve kötü niyetli istekler için güvenlik kalkanını nasıl konumlandıracaksın?",
+            choices: [
+                { text: "1) Token Bucket Rate Limiter + SQL Enjeksiyon koruması + T.C. Kimlik algoritması aktif et", opt: "Güvenlik Aktif", correct: true },
+                { text: "2) Zaman daraldı, güvenlik filtrelerini açılıştan sonra eklersin", opt: "Kalkan Kapalı", correct: false }
+            ]
+        },
+        {
+            clock: "⏰ Saat 07:55",
+            badge: "ADIM 4 / 4: AI TUTOR / BERT MODELİ",
+            prompt: "Hastaların poliklinik seçiminde yardımcı olacak akıllı model entegrasyonunu nasıl tamamlayacaksın?",
+            choices: [
+                { text: "1) BERT tabanlı poliklinik sınıflandırma modeli + Confusion Matrix analizi ile canlıya al", opt: "Doğrulanmış Model", correct: true },
+                { text: "2) Test edilmemiş basit kelime eşleştirme kuralı kullan", opt: "Yüksek FN Riski", correct: false }
+            ]
+        }
+    ];
+
+    function addLog(text) {
+        logLines.push(text);
+        const logBox = document.getElementById('terminal-log');
+        logBox.innerText = logLines.join('\n');
+        logBox.scrollTop = logBox.scrollHeight;
+    }
+
+    function setNodeClass(id, className) {
+        const el = document.getElementById(id);
+        if (el) {
+            el.setAttribute('class', 'node ' + className);
+        }
+    }
+
+    function makeChoice(choiceIndex) {
+        selectedChoices.push(choiceIndex);
+        const currentStepObj = steps[step - 1];
+
+        if (step === 1) {
+            if (choiceIndex === 1) {
+                addLog("[07:35:00] Seçim 1 uygulandı: Redis Redlock kilit mekanizması devrede. Durum: S1A");
+                setNodeClass('node-S0', '');
+                setNodeClass('node-S1A', 'active');
+                document.getElementById('current-state-label').innerText = "S1A_SECURE_ARCH";
+            } else {
+                addLog("[07:35:00] Seçim 2 uygulandı: Naive SQL seçildi! Concurrency riski tavan yaptı. Durum: S1B");
+                setNodeClass('node-S0', '');
+                setNodeClass('node-S1B', 'failed');
+                document.getElementById('current-state-label').innerText = "S1B_RISKY_ARCH";
+            }
+        } else if (step === 2) {
+            if (choiceIndex === 1) {
+                addLog("[07:45:00] 50.000 sanal kullanıcı ile JMeter yük testi tamamlandı. P99 Latency: 180ms. Durum: S2A");
+                setNodeClass('node-S1A', '');
+                setNodeClass('node-S2A', 'active');
+                document.getElementById('current-state-label').innerText = "S2A_LOAD_TESTED";
+            } else {
+                addLog("[07:45:00] Yük testi atlandı! 50k eşzamanlılık canlıda ilk kez denenecek. Durum: S2B");
+                setNodeClass('node-S1B', '');
+                setNodeClass('node-S2B', 'failed');
+                document.getElementById('current-state-label').innerText = "S2B_UNTESTED";
+            }
+        } else if (step === 3) {
+            if (choiceIndex === 1) {
+                addLog("[07:52:00] Güvenlik kalkanı devrede: Rate limiter ve SQL sanitization aktif.");
+                setNodeClass('node-S2A', '');
+                setNodeClass('node-S3', 'active');
+                document.getElementById('current-state-label').innerText = "S3_SHIELDED";
+            } else {
+                addLog("[07:52:00] Güvenlik kapalı! API botlara ve spam isteklerine açık.");
+                setNodeClass('node-S2B', '');
+                setNodeClass('node-S3', 'failed');
+                document.getElementById('current-state-label').innerText = "S3_VULNERABLE";
+            }
+        } else if (step === 4) {
+            if (choiceIndex === 1) {
+                addLog("[07:58:00] BERT NLP modeli entegre edildi. F1=0.9789, Recall=0.9947.");
+            } else {
+                addLog("[07:58:00] Basit kural tabanlı model bağlandı. Yanlış negatif oranı yüksek!");
+            }
+            // Trigger 08:00 Evaluation
+            evaluateFinalClock();
+            return;
+        }
+
+        step++;
+        renderStep();
+    }
+
+    function renderStep() {
+        const s = steps[step - 1];
+        document.getElementById('step-badge').innerText = s.badge;
+        document.getElementById('step-clock').innerText = s.clock;
+        document.getElementById('story-prompt').innerHTML = s.prompt;
+
+        const btnDiv = document.getElementById('decision-buttons');
+        btnDiv.innerHTML = `
+            <button class="choice-btn" onclick="makeChoice(1)">
+                <span>${s.choices[0].text}</span>
+                <span class="badge-opt">${s.choices[0].opt}</span>
+            </button>
+            <button class="choice-btn" onclick="makeChoice(2)">
+                <span>${s.choices[1].text}</span>
+                <span class="badge-opt">${s.choices[1].opt}</span>
+            </button>
+        `;
+    }
+
+    function evaluateFinalClock() {
+        document.getElementById('step-badge').innerText = "08:00:00 CANLI LİMANI";
+        document.getElementById('step-clock').innerText = "🚨 08:00 PİK TRAFİK";
+        
+        const allCorrect = selectedChoices.every(c => c === 1);
+
+        if (allCorrect) {
+            setNodeClass('node-S3', '');
+            setNodeClass('node-S5', 'success');
+            document.getElementById('current-state-label').innerText = "S5_TERMINAL_SUCCESS";
+            document.getElementById('current-state-label').style.color = "var(--success)";
+
+            addLog("\n[08:00:00] ==========================================");
+            addLog("[08:00:01] 50.000 KULLANICI AYNI ANDA İSTEK ATTI!");
+            addLog("[08:00:02] Redis Redlock kilitleri eşzamanlılığı korudu.");
+            addLog("[08:00:03] P99 gecikme 180ms. Hata oranı: %0.00.");
+            addLog("[08:00:04] SONUÇ: RANDEVU BAŞARILI! Tüm kabul kriterleri GEÇTİ.");
+            addLog("==================================================");
+
+            document.getElementById('story-prompt').innerHTML = `
+                <div style="background: rgba(16, 185, 129, 0.15); border: 1px solid var(--success); padding: 18px; border-radius: 10px;">
+                    <h3 style="color: var(--success); margin-bottom: 8px;">🎉 08:00 - RANDEVU BAŞARILI!</h3>
+                    <p>Tebrikler! Dağıtık kilit mimarisi sayesinde race condition önlendi. JMeter yük testi sistemi 50.000 eşzamanlı isteğe hazırladı. Güvenlik kalkanı botları blokladı ve BERT modeli semptomları doğru polikliniklere yönlendirdi. 
+                    <strong>Tüm kabul kriterleri %100 sağlandı.</strong></p>
+                </div>
+            `;
+
+            updateAC('AC-01', true);
+            updateAC('AC-02', true);
+            updateAC('AC-03', true);
+            updateAC('AC-04', true);
+        } else {
+            setNodeClass('node-S3', '');
+            setNodeClass('node-S6', 'failed');
+            document.getElementById('current-state-label').innerText = "S6_TERMINAL_CRASH";
+            document.getElementById('current-state-label').style.color = "var(--danger)";
+
+            let reason = "08:00'de sistem çöktü! ";
+            if (selectedChoices[0] === 2) {
+                reason += "Düz SQL sorguları sebebiyle aynı randevu slotuna iki hasta birden yazıldı (Double Booking), veritabanında Deadlock oluştu. ";
+                updateAC('AC-01', false);
+            } else {
+                updateAC('AC-01', true);
+            }
+
+            if (selectedChoices[1] === 2) {
+                reason += "Yük testi yapılmadığı için 50k kullanıcı sunucuları 504 Gateway Timeout'a soktu. ";
+                updateAC('AC-02', false);
+            } else {
+                updateAC('AC-02', true);
+            }
+
+            if (selectedChoices[2] === 2) {
+                reason += "Rate limiter olmadığı için karaborsacı botlar tüm randevuları saniyeler içinde sildi süpürdü. ";
+                updateAC('AC-03', false);
+            } else {
+                updateAC('AC-03', true);
+            }
+
+            if (selectedChoices[3] === 2) {
+                reason += "Model acil kalp hastalarını Dahiliyeye yönlendirdi (Yüksek Yanlış Negatif). ";
+                updateAC('AC-04', false);
+            } else {
+                updateAC('AC-04', true);
+            }
+
+            addLog("\n[08:00:00] ==========================================");
+            addLog("[08:00:01] 50.000 KULLANICI AYNI ANDA İSTEK ATTI!");
+            addLog("[08:00:02] KRİTİK HATA! SUNUCULAR KİLİTLENDİ!");
+            addLog(`[08:00:03] ${reason}`);
+            addLog("[08:00:04] SONUÇ: 08:00 - SİSTEM ÇÖKTÜ!");
+            addLog("==================================================");
+
+            document.getElementById('story-prompt').innerHTML = `
+                <div style="background: rgba(239, 68, 68, 0.15); border: 1px solid var(--danger); padding: 18px; border-radius: 10px;">
+                    <h3 style="color: var(--danger); margin-bottom: 8px;">💥 08:00 - SİSTEM ÇÖKTÜ!</h3>
+                    <p>${reason}</p>
+                    <p style="margin-top: 8px; font-weight: 600;">Kabul kriterleri sağlanamadı. Lütfen kararlarınızı gözden geçirip testi tekrarlayınız.</p>
+                </div>
+            `;
+        }
+
+        document.getElementById('decision-buttons').innerHTML = `
+            <button class="choice-btn" onclick="resetStory()">
+                <span>Yeniden Oyna & Farklı Kararlar Dene ↺</span>
+                <span class="badge-opt">Simülatör</span>
+            </button>
+        `;
+    }
+
+    function updateAC(id, passed) {
+        const item = document.getElementById('card-' + id);
+        const statusSpan = document.getElementById('status-' + id);
+        if (passed) {
+            item.className = "ac-item passed";
+            statusSpan.className = "ac-status status-passed";
+            statusSpan.innerText = "GEÇTİ (PASSED)";
+        } else {
+            item.className = "ac-item failed";
+            statusSpan.className = "ac-status status-failed";
+            statusSpan.innerText = "KALDI (FAILED)";
+        }
+    }
+
+    function resetStory() {
+        step = 1;
+        selectedChoices = [];
+        logLines = [
+            "[07:30:00] SE Primer Motoru başlatıldı. Durum: S0_INITIAL",
+            "[07:30:00] Hedef: 08:00 Canlı Lansmanı. 50.000 Eşzamanlı İstek Bekleniyor..."
+        ];
+        document.getElementById('terminal-log').innerText = logLines.join('\n');
+        document.getElementById('current-state-label').innerText = "S0_INITIAL";
+        document.getElementById('current-state-label').style.color = "var(--accent)";
+
+        ['node-S0', 'node-S1A', 'node-S1B', 'node-S2A', 'node-S2B', 'node-S3', 'node-S5', 'node-S6'].forEach(id => {
+            setNodeClass(id, '');
+        });
+        setNodeClass('node-S0', 'active');
+
+        ['AC-01', 'AC-02', 'AC-03', 'AC-04'].forEach(id => {
+            const item = document.getElementById('card-' + id);
+            const statusSpan = document.getElementById('status-' + id);
+            item.className = "ac-item";
+            statusSpan.className = "ac-status status-pending";
+            statusSpan.innerText = "BEKLİYOR";
+        });
+
+        renderStep();
+    }
+
+    // BERT Interactive Simulation
+    function runBERTPrediction() {
+        const text = document.getElementById('symptom-input').value.toLowerCase();
+        let scores = { cardio: 0.1, neuro: 0.1, internal: 0.1, ortho: 0.1 };
+
+        if (text.includes("göğüs") || text.includes("kalp") || text.includes("kol") || text.includes("sıkış")) scores.cardio += 5.0;
+        if (text.includes("baş") || text.includes("dönme") || text.includes("uyuş") || text.includes("karar")) scores.neuro += 4.5;
+        if (text.includes("mide") || text.includes("karın") || text.includes("ateş") || text.includes("halsiz")) scores.internal += 4.0;
+        if (text.includes("diz") || text.includes("eklem") || text.includes("bel") || text.includes("kırık")) scores.ortho += 4.0;
+
+        const sum = scores.cardio + scores.neuro + scores.internal + scores.ortho;
+        const pCardio = Math.round((scores.cardio / sum) * 100);
+        const pNeuro = Math.round((scores.neuro / sum) * 100);
+        const pInternal = Math.round((scores.internal / sum) * 100);
+        const pOrtho = Math.round((scores.ortho / sum) * 100);
+
+        document.getElementById('bar-cardio').style.width = pCardio + '%';
+        document.getElementById('txt-cardio').innerText = '%' + pCardio;
+        document.getElementById('bar-neuro').style.width = pNeuro + '%';
+        document.getElementById('txt-neuro').innerText = '%' + pNeuro;
+        document.getElementById('bar-internal').style.width = pInternal + '%';
+        document.getElementById('txt-internal').innerText = '%' + pInternal;
+        document.getElementById('bar-ortho').style.width = pOrtho + '%';
+        document.getElementById('txt-ortho').innerText = '%' + pOrtho;
+    }
+
+    // Confusion Matrix Calculation
+    function calcMatrix() {
+        const tp = parseFloat(document.getElementById('inp-tp').value) || 0;
+        const fp = parseFloat(document.getElementById('inp-fp').value) || 0;
+        const fn = parseFloat(document.getElementById('inp-fn').value) || 0;
+        const tn = parseFloat(document.getElementById('inp-tn').value) || 0;
+
+        const total = tp + fp + fn + tn;
+        const acc = total > 0 ? ((tp + tn) / total) * 100 : 0;
+        const prec = (tp + fp) > 0 ? (tp / (tp + fp)) * 100 : 0;
+        const rec = (tp + fn) > 0 ? (tp / (tp + fn)) * 100 : 0;
+        const f1 = (prec + rec) > 0 ? (2 * (prec * rec) / (prec + rec)) : 0;
+
+        document.getElementById('res-acc').innerText = '%' + acc.toFixed(2);
+        document.getElementById('res-prec').innerText = '%' + prec.toFixed(2);
+        document.getElementById('res-rec').innerText = '%' + rec.toFixed(2);
+        document.getElementById('res-f1').innerText = '%' + f1.toFixed(2);
+    }
+
+    // Initialize
+    calcMatrix();
+</script>
+
+</body>
+</html>
